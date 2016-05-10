@@ -1,0 +1,9 @@
+1.1.1.1,Virus A
+1.1.1.1,Virus B
+1.1.1.1,Virus C
+1.1.1.2,Virus A
+1.1.1.2,Virus B
+1.1.1.2,Virus C
+1.1.1.2,Virus D
+1.1.1.4,Virus E
+1.1.1.5,Virus A

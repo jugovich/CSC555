@@ -1,0 +1,90 @@
+1.1.1.1,100,01-01-2012,MyFile,MyAgent,200
+1.1.1.1,100,02-01-2012,MyFile,MyAgent,200
+1.1.1.1,100,03-01-2012,MyFile,MyAgent,200
+1.1.1.2,100,04-01-2012,MyFile,MyAgent,200
+1.1.1.3,100,05-01-2012,MyFile,MyAgent,200
+1.1.1.3,100,06-01-2012,MyFile,MyAgent,200
+1.1.1.4,100,07-01-2012,MyFile,MyAgent,200
+1.1.1.4,100,08-01-2012,MyFile,MyAgent,200
+1.1.1.4,100,09-01-2012,MyFile,MyAgent,200
+
+$HADOOP_HOME/bin/hadoop jar $HADOOP_HOME/contrib/streaming/hadoop-*streaming*.jar -file ~/map_solr.py -mapper ~/map_solr.py -file ~/reduce_solr.py   -reducer ~/reduce_solr.py -input reddit_posts.csv -output reddit_post_finally
+$HADOOP_HOME/bin/hadoop jar $HADOOP_HOME/contrib/streaming/hadoop-*streaming*.jar -file ~/mapper.py -mapper ~/mapper.py -file ~/reducer.py   -reducer ~/reducer.py -input reddit_posts.csv -output reddit_post
+
+
+$HADOOP_HOME/bin/hadoop jar $HADOOP_HOME/contrib/streaming/hadoop-*streaming*.jar -file ~/mapper.py -mapper ~/mapper.py -input reddit_posts.csv -output reddit_post
+$HADOOP_HOME/bin/hadoop jar $HADOOP_HOME/contrib/streaming/hadoop-*streaming*.jar -file ~/mapper.py -mapper ~/mapper.py -file ~/reducer_1.py -reducer ~/reducer_1.py  -input reddit_posts.csv -output reddit_post_seq
+
+bin/hadoop jar contrib/streaming/hadoop-*streaming*.jar \
+-file /home/hduser/mapper.py    -mapper /home/hduser/mapper.py \
+-file /home/hduser/reducer.py   -reducer /home/hduser/reducer.py \
+-input /user/hduser/gutenberg/* -output /user/hduser/gutenberg-output
+
+
+
+#first attempt
+$MAHOUT_HOME/bin/mahout lucene.vector --dir ~/data/index --output ~/data/post_text/out_en.vec --field post_text_en --dictOut ~/data/post_text/dict_en.txt --maxPercentErrorDocs .5 --max 10 -md 100 -w TF
+
+$MAHOUT_HOME/bin/mahout lucene.vector --dir ~/data/index --output ~/data/post_text/out.vec --field post_text --dictOut ~/data/post_text/dict.txt --maxPercentErrorDocs .5 --max 10 -md 100 -w TFIDF
+$MAHOUT_HOME/bin/mahout lucene.vector --dir ~/data/index_del --output ~/data/post_text/out_del.vec --field post_text --dictOut ~/data/post_text/dict_del.txt --maxPercentErrorDocs .5 --max 10 -md 100 -w TF
+
+
+
+text_en
+
+$MAHOUT_HOME/bin/mahout seqdirectory -i ~/data/reddit_posts -o ~/data/reddit_posts-seqdir -c UTF-8 -chunk 64
+
+
+
+$MAHOUT_HOME/bin/mahout lucene.vector
+    --dir $WORK_DIR/wikipedia/solr/data/index
+    --field body
+    --dictOut $WORK_DIR/solr/wikipedia/dict.txt
+    --output $WORK_DIR/solr/wikipedia/out.txt
+    --max 50
+    --norm 2
+
+$MAHOUT_HOME/bin/mahout cvb -i /home/ec2-user/data/post_text/out.vec -dict ~/data/post_text/dict.txt -o ~/data/post_text/out -dt ~/data/post_text/out -k 10
+$MAHOUT_HOME/bin/mahout cvb -i /home/ec2-user/data/post_text/out_en.vec -dict ~/data/post_text/dict_en.txt -o ~/data/post_text/out_en -dt ~/data/post_text/out_en_dt -k 10
+
+    bin/mahout cvb \
+    -i <input path for document vectors> \
+    -dict <path to term-dictionary file(s) , glob expression supported> \
+    -o <output path for topic-term distributions>
+    -dt <output path for doc-topic distributions> \
+    -k <number of latent topics> \
+    -nt <number of unique features defined by input document vectors> \
+    -mt <path to store model state after each iteration> \
+    -maxIter <max number of iterations> \
+    -mipd <max number of iterations per doc for learning> \
+    -a <smoothing for doc topic distributions> \
+    -e <smoothing for term topic distributions> \
+    -seed <random seed> \
+    -tf <fraction of data to hold for testing> \
+    -block <number of iterations per perplexity check, ignored unless
+
+
+  time bin/mahout kmeans -i /home/ec2-user/data/post_text/out -o drugs-kmeans -dm org.apache.mahout.common.distance.CosineDistanceMeasure -x 10 -k 20 -ow --clustering
+
+
+  bin/mahout kmeans \
+    -i <input vectors directory> \
+    -c <input clusters directory> \
+    -o <output working directory> \
+    -k <optional number of initial clusters to sample from input vectors> \
+    -dm <DistanceMeasure> \
+    -x <maximum number of iterations> \
+    -cd <optional convergence delta. Default is 0.5> \
+    -ow <overwrite output directory if present>
+    -cl <run input vector clustering after computing Canopies>
+    -xm <execution method: sequential or mapreduce>
+
+
+  $MAHOUT_HOME/bin/mahout clusterdump --seqFileDir drugs-kmeans/clusters-2-final --pointsDir output/clusteredPoints --output clusteranalyze.txt
+
+
+
+  $MAHOUT_HOME/bin/mahout clusterdump --seqFileDir drugs-kmeans/clusters-2-final --dictionary /home/ec2-user/data/post_text/dict.txt --substring 100 --pointsDir drugs-kmeans/clusteredPoints
+
+
+  $MAHOUT_HOME/bin/mahout org.apache.mahout.utils.vectors.lucene.ClusterLabels --dir /home/ec2-user/data/index/ --field post_text --idField id --seqFileDir drugs-kmeans/clusters-2-final --pointsDir drugs-kmeans/clusteredPoints --minClusterSize 5 --maxLabels 10
